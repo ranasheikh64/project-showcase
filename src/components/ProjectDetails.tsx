@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { ArrowLeft, Github, Globe, Smartphone, ShieldCheck, Cpu, Code, BookOpen, Layers, Sparkles } from "lucide-react";
+import React, { useEffect, useState, useRef } from "react";
+import { ArrowLeft, MonitorSmartphone, ArrowRight, Smartphone, Play, X } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
 import { Project } from "../types";
-import ImageCarousel from "./ImageCarousel";
 
 interface ProjectDetailsProps {
   project: Project;
@@ -11,6 +11,15 @@ interface ProjectDetailsProps {
 export default function ProjectDetails({ project: initialProject, onBack }: ProjectDetailsProps) {
   const [project, setProject] = useState<Project>(initialProject);
   const [loading, setLoading] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [showAppPopup, setShowAppPopup] = useState(false);
+
+  const handleAppClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!project.liveUrl || project.liveUrl === "#" || project.liveUrl === "") {
+      e.preventDefault();
+      setShowAppPopup(true);
+    }
+  };
 
   // Auto-scroll to top when details screen mounts
   useEffect(() => {
@@ -28,12 +37,12 @@ export default function ProjectDetails({ project: initialProject, onBack }: Proj
             tagline: item.details ? item.details.substring(0, 50) + "..." : "Project Details",
             description: item.details || "",
             technologies: initialProject.technologies?.length ? initialProject.technologies : ["React", "Node.js", "MongoDB"],
-            category: "web",
+            category: item.category || initialProject.category || "web",
             features: initialProject.features?.length ? initialProject.features : ["Full-stack implementation", "Responsive Design"],
             liveUrl: item.liveLink || "",
             githubUrl: item.github || "",
             images: item.images && item.images.length > 0 ? item.images : initialProject.images,
-            glowColor: initialProject.glowColor || "rgba(6, 182, 212, 0.5)",
+            glowColor: initialProject.glowColor || "rgba(139, 92, 246, 0.5)",
           });
         }
       } catch (error) {
@@ -47,203 +56,177 @@ export default function ProjectDetails({ project: initialProject, onBack }: Proj
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialProject.id]);
 
+  // Auto-slider for images
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (scrollRef.current) {
+        const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+        if (scrollLeft + clientWidth >= scrollWidth - 10) {
+          scrollRef.current.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+          scrollRef.current.scrollBy({ left: 300, behavior: 'smooth' });
+        }
+      }
+    }, 2500);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
-    <div className="min-h-screen bg-black text-zinc-100 pt-28 pb-20 px-4 md:px-10 relative overflow-hidden">
-      {/* Background radial glow accents */}
-      <div 
-        className="absolute top-1/3 right-1/4 -translate-y-1/2 w-96 h-96 rounded-full blur-[120px] pointer-events-none opacity-20 transition-all duration-700" 
-        style={{ backgroundColor: project.glowColor }}
-      />
-      <div className="absolute bottom-10 left-10 w-80 h-80 rounded-full bg-indigo-900/10 blur-[100px] pointer-events-none" />
-
-      {/* Grid overlay */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
-
-      <div className="max-w-6xl mx-auto relative z-10">
+    <div className="min-h-screen bg-[#121212] text-zinc-100 pt-28 pb-20 px-4 md:px-10 relative overflow-hidden font-sans">
+      
+      <div className="max-w-[1250px] mx-auto relative z-10">
         {/* Back navigation button */}
         <button
           onClick={onBack}
-          className="group inline-flex items-center gap-2 text-xs font-mono font-bold text-zinc-400 hover:text-white mb-8 px-4 py-2 bg-zinc-950 border border-zinc-900 hover:border-zinc-800 rounded-xl transition-all duration-300 cursor-pointer"
+          className="group inline-flex items-center gap-2 text-xs font-bold text-zinc-400 hover:text-white mb-8 px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-xl transition-all duration-300 cursor-pointer"
         >
           <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
-          BACK TO ALL MASTERPIECES
+          BACK
         </button>
 
-        {/* Project Main Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+        <div className="space-y-8">
           
-          {/* Left Column: Title, Interactive Carousel, Features & Specs */}
-          <div className="lg:col-span-7 space-y-8">
+          {/* Header Title & Actions */}
+          <div className="space-y-6">
+            <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight">
+              {project.name}
+            </h1>
             
-            {/* Header Title Area */}
-            <div className="space-y-3 text-left">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[10px] font-mono text-cyan-400 font-bold uppercase tracking-widest bg-cyan-950/40 border border-cyan-800/30 px-3 py-1 rounded-full">
-                  {project.category.toUpperCase()} ARCHITECTURE
-                </span>
-                <span className="text-[10px] font-mono text-zinc-500">•</span>
-                <span className="text-[10px] font-mono text-zinc-400 font-semibold uppercase tracking-wider">
-                  Verified Showcase
-                </span>
-              </div>
-              <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-                {project.name}
-              </h1>
-              <p className="text-zinc-400 text-sm sm:text-base font-medium">
-                {project.tagline}
-              </p>
-            </div>
-
-            {/* Prominent High-Fidelity Image Carousel */}
-            <div 
-              className="rounded-3xl overflow-hidden border border-zinc-800/80 shadow-2xl relative"
-              style={{
-                boxShadow: `0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 40px ${project.glowColor}10`
-              }}
-            >
-              <ImageCarousel images={project.images} heightClass="h-64 sm:h-[380px]" autoPlayInterval={5000} />
+            {/* Action Buttons */}
+            <div className="flex flex-wrap items-center gap-4">
+              <a 
+                href={project.liveUrl || "#"} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                onClick={handleAppClick}
+                className="bg-zinc-100 hover:bg-white text-black font-bold px-8 py-3 rounded-xl transition-colors cursor-pointer text-sm flex items-center gap-2.5 shadow-lg"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" className="w-5 h-5 fill-current"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg>
+                App Store
+              </a>
               
-              {/* Overlay Badge */}
-              <div className="absolute top-4 left-4 bg-black/70 backdrop-blur-md border border-zinc-800/80 rounded-xl px-3 py-1.5 flex items-center gap-1.5 z-10 pointer-events-none">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-[9px] font-mono font-bold text-zinc-300">INTERACTIVE IMAGE ROTATION</span>
-              </div>
+              <a 
+                href={project.liveUrl || "#"} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                onClick={handleAppClick}
+                className="bg-zinc-800 hover:bg-zinc-700 text-white font-bold px-8 py-3 rounded-xl transition-colors cursor-pointer text-sm flex items-center gap-2.5 shadow-lg border border-zinc-700"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" className="w-5 h-5 fill-current"><path d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1zM47 0C34 6.8 25.3 19.2 25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l256.6-256L47 0zm425.2 225.6l-58.9-34.1-65.7 64.5 65.7 64.5 60.1-34.1c18-14.3 18-46.5-1.2-60.8zM104.6 499l280.8-161.2-60.1-60.1L104.6 499z"/></svg>
+                Google Play
+              </a>
             </div>
+          </div>
 
-            {/* Description & Engineering Case Study */}
-            <div className="bg-zinc-950/80 border border-zinc-900 rounded-3xl p-6 sm:p-8 space-y-6 text-left backdrop-blur-xl">
-              <div className="space-y-3">
-                <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                  <Layers className="h-5 w-5 text-violet-400" />
-                  Product Overview
-                </h3>
-                <p className="text-zinc-400 text-sm leading-relaxed">
-                  {project.description}
-                </p>
-              </div>
+          {/* Horizontal Screenshots Carousel */}
+          <div className="pt-6 pb-2">
+            <div 
+              ref={scrollRef}
+              className="flex overflow-x-auto gap-6 pb-6 snap-x hide-scrollbar" 
+              style={{ scrollbarWidth: 'none' }}
+            >
+              {project.images.map((img, idx) => (
+                <div 
+                  key={idx} 
+                  className="relative shrink-0 snap-center w-[230px] md:w-[260px] aspect-[19.5/40] bg-black rounded-[2.5rem] p-1.5 shadow-2xl z-10 flex items-center justify-center border-[3px] border-[#434B5D]"
+                  style={{
+                    boxShadow: "inset 0 0 4px 1px rgba(255,255,255,0.2), 0 20px 40px -10px rgba(0,0,0,0.8)"
+                  }}
+                >
+                  {/* Hardware Buttons */}
+                  <div className="absolute -left-[5px] top-[15%] w-1 h-6 bg-[#434B5D] rounded-l-md" />
+                  <div className="absolute -left-[5px] top-[22%] w-1 h-10 bg-[#434B5D] rounded-l-md" />
+                  <div className="absolute -left-[5px] top-[30%] w-1 h-10 bg-[#434B5D] rounded-l-md" />
+                  <div className="absolute -right-[5px] top-[25%] w-1 h-12 bg-[#434B5D] rounded-r-md" />
 
-              {project.caseStudy && (
-                <div className="border-t border-zinc-900 pt-6 space-y-3">
-                  <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                    <BookOpen className="h-5 w-5 text-cyan-400" />
-                    Engineering Case Study
-                  </h3>
-                  <div className="p-4 bg-zinc-900/40 rounded-2xl border border-zinc-900 font-mono text-xs text-zinc-300 leading-relaxed relative overflow-hidden">
-                    {/* Visual coding background accent */}
-                    <div className="absolute right-2 bottom-2 text-zinc-800/30 font-black text-6xl select-none pointer-events-none font-mono">
-                      {"</>"}
-                    </div>
-                    {project.caseStudy}
+                  <div className="relative w-full h-full bg-zinc-900 rounded-[2.2rem] overflow-hidden border-[4px] border-black">
+                    <img
+                      src={img}
+                      referrerPolicy="no-referrer"
+                      className="w-full h-full object-cover"
+                      alt={`Screenshot ${idx + 1}`}
+                    />
                   </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* About this app */}
+          <div className="space-y-4 pt-4 max-w-3xl">
+            <div className="flex items-center justify-between cursor-pointer group">
+              <h2 className="text-xl font-bold text-white">About this app</h2>
+              <ArrowRight className="w-5 h-5 text-zinc-400 group-hover:text-white transition-colors" />
+            </div>
+            
+            <div className="text-zinc-300 text-sm leading-relaxed whitespace-pre-wrap">
+              {project.description || project.tagline}
+              {project.caseStudy && (
+                <div className="mt-4 text-zinc-400">
+                  <strong className="text-zinc-200">Key Features:</strong>
+                  <ul className="list-disc pl-5 mt-2 space-y-1">
+                    {project.features.map((feat, idx) => (
+                      <li key={idx}>{feat}</li>
+                    ))}
+                  </ul>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Right Column: Meta Information, Technologies, Action Buttons */}
-          <div className="lg:col-span-5 space-y-8 text-left">
-            
-            {/* Core Action & Deployment links */}
-            <div className="bg-zinc-950/80 border border-zinc-900 rounded-3xl p-6 sm:p-8 space-y-5 backdrop-blur-xl shadow-xl">
-              <span className="text-[10px] font-mono text-zinc-500 tracking-widest uppercase block">
-                LAUNCH CENTER
+          {/* Tags */}
+          <div className="flex flex-wrap gap-3 pt-4">
+            {project.technologies.map((tech, idx) => (
+              <span key={idx} className="px-4 py-1.5 rounded-full border border-zinc-800 bg-zinc-900/50 text-zinc-300 text-xs font-medium">
+                {tech}
               </span>
-              
-              <div className="space-y-3">
-                <a
-                  href={project.githubUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full flex items-center justify-center gap-3.5 py-4 rounded-xl bg-gradient-to-r from-zinc-900 to-zinc-950 border border-zinc-800 hover:border-zinc-700 text-white font-bold text-xs transition-all shadow-md active:scale-95 text-center cursor-pointer"
-                >
-                  <Github className="h-4.5 w-4.5 text-zinc-400" />
-                  Explore Repository Code
-                </a>
-
-                {project.liveUrl && (
-                  <a
-                    href={project.liveUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full flex items-center justify-center gap-3.5 py-4 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold text-xs transition-all shadow-lg active:scale-95 text-center cursor-pointer"
-                  >
-                    <Globe className="h-4.5 w-4.5" />
-                    Launch Live Production Demo
-                  </a>
-                )}
-              </div>
-
-              <div className="border-t border-zinc-900 pt-4 flex items-center justify-between text-[11px] text-zinc-500 font-mono">
-                <span className="flex items-center gap-1">
-                  <ShieldCheck className="h-3.5 w-3.5 text-emerald-500" />
-                  GPL Licensed
-                </span>
-                <span>Production Grade</span>
-              </div>
-            </div>
-
-            {/* Core Architecture and Specs */}
-            <div className="bg-zinc-950/80 border border-zinc-900 rounded-3xl p-6 sm:p-8 space-y-6 backdrop-blur-xl">
-              <div>
-                <span className="text-[10px] font-mono text-zinc-500 tracking-widest uppercase block mb-3">
-                  SYSTEM CORE TECHNOLOGY
-                </span>
-                <div className="flex flex-wrap gap-2">
-                  {project.technologies.map((tech, idx) => (
-                    <span
-                      key={idx}
-                      className="px-3 py-1.5 rounded-xl bg-zinc-900/60 border border-zinc-800/80 text-zinc-300 text-xs font-semibold font-mono flex items-center gap-1.5"
-                    >
-                      <Cpu className="h-3 w-3 text-cyan-400" />
-                      {tech}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              <div className="border-t border-zinc-900 pt-5 space-y-4">
-                <span className="text-[10px] font-mono text-zinc-500 tracking-widest uppercase block">
-                  KEY REQUISITES & CAPABILITIES
-                </span>
-                
-                <div className="space-y-3">
-                  {project.features.map((feat, idx) => (
-                    <div key={idx} className="flex items-start gap-3 text-xs sm:text-sm text-zinc-400">
-                      <div className="h-5 w-5 rounded-lg bg-zinc-900 border border-zinc-850 flex items-center justify-center shrink-0 text-violet-400 font-bold font-mono text-[10px]">
-                        {idx + 1}
-                      </div>
-                      <p className="leading-relaxed pt-0.5">{feat}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Custom Interactive Dev Sandbox Sandbox Simulator Info */}
-            <div className="border border-zinc-900/60 bg-gradient-to-br from-zinc-950 to-black rounded-3xl p-6 text-zinc-500 text-xs space-y-3">
-              <div className="flex items-center gap-2">
-                <Smartphone className="h-4.5 w-4.5 text-cyan-400 animate-pulse" />
-                <span className="font-mono text-[10px] tracking-widest text-zinc-400 font-bold uppercase">
-                  SIMULATOR TELEMETRY
-                </span>
-              </div>
-              <p className="leading-relaxed">
-                This staging node displays mock metrics. If you are interested in deploying or white-labeling this product, please consult <strong className="text-zinc-300">Rana Sheikh</strong> directly.
-              </p>
-              <div className="pt-2">
-                <a
-                  href="mailto:rana6424sheikh@gmail.com"
-                  className="inline-flex items-center gap-1.5 text-xs text-violet-400 hover:text-white font-mono hover:underline cursor-pointer"
-                >
-                  Request Integration Call →
-                </a>
-              </div>
-            </div>
-
+            ))}
           </div>
+
         </div>
       </div>
+      <AnimatePresence>
+        {showAppPopup && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+            onClick={() => setShowAppPopup(false)}
+          >
+            <motion.div 
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              className="bg-zinc-900 border border-zinc-800 p-8 rounded-2xl max-w-md w-full shadow-2xl relative"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button 
+                onClick={() => setShowAppPopup(false)}
+                className="absolute top-4 right-4 text-zinc-400 hover:text-white transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+              
+              <div className="flex flex-col items-center text-center space-y-4">
+                <div className="w-16 h-16 bg-blue-500/10 text-blue-500 rounded-full flex items-center justify-center mb-2">
+                  <Smartphone className="w-8 h-8" />
+                </div>
+                <h3 className="text-2xl font-bold text-white">App Coming Soon</h3>
+                <p className="text-zinc-400 text-sm leading-relaxed">
+                  This application is currently not published on the App Store or Google Play yet. Stay tuned for the official release!
+                </p>
+                <button 
+                  onClick={() => setShowAppPopup(false)}
+                  className="mt-6 w-full py-3 bg-zinc-100 hover:bg-white text-black font-bold rounded-xl transition-colors"
+                >
+                  Got it
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

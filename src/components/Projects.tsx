@@ -25,7 +25,7 @@ export default function Projects({ onSelectProject }: ProjectsProps) {
             tagline: item.details ? item.details.substring(0, 50) + "..." : "Project Details",
             description: item.details || "",
             technologies: ["React", "Node.js", "MongoDB"], // Default placeholder since API lacks it
-            category: "web",
+            category: item.category || "web",
             features: ["Full-stack implementation", "Responsive Design"],
             liveUrl: item.liveLink || "",
             githubUrl: item.github || "",
@@ -66,7 +66,7 @@ export default function Projects({ onSelectProject }: ProjectsProps) {
     <section id="projects" className="py-24 bg-black px-4 md:px-10 relative">
       <div className="absolute top-1/2 left-1/4 w-96 h-96 rounded-full bg-cyan-600/5 blur-[120px] pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-[1250px] mx-auto">
         {/* Section Header */}
         <div className="text-center space-y-3 mb-16">
           <span className="text-cyan-400 font-mono text-xs tracking-widest uppercase">01 // PORTFOLIO SHOWCASE</span>
@@ -124,7 +124,12 @@ export default function Projects({ onSelectProject }: ProjectsProps) {
               >
                 {/* Embedded self-scrolling interactive image carousel inside card */}
                 <div className="relative overflow-hidden h-52 w-full border-b border-zinc-900">
-                  <ImageCarousel images={proj.images} heightClass="h-full" autoPlayInterval={4000 + Math.random() * 2000} />
+                  <ImageCarousel 
+                    images={proj.images} 
+                    heightClass="h-full" 
+                    autoPlayInterval={4000 + Math.random() * 2000} 
+                    isMobile={proj.category === "mobile"}
+                  />
                   
                   {/* Category overlay badge */}
                   <div className="absolute top-4 left-4 z-10 bg-black/85 backdrop-blur-md border border-zinc-900 px-2.5 py-1 rounded-lg text-[8px] font-mono font-black text-cyan-400 tracking-wider uppercase">

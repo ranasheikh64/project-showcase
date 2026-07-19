@@ -6,12 +6,14 @@ interface ImageCarouselProps {
   images: string[];
   autoPlayInterval?: number;
   heightClass?: string; // e.g. "h-48" or "h-96"
+  isMobile?: boolean;
 }
 
 export default function ImageCarousel({
   images,
   autoPlayInterval = 4000,
-  heightClass = "h-48"
+  heightClass = "h-48",
+  isMobile = false
 }: ImageCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(0); // -1 for left, 1 for right
@@ -76,26 +78,60 @@ export default function ImageCarousel({
   };
 
   return (
-    <div className={`relative w-full ${heightClass} bg-zinc-950 overflow-hidden group select-none`}>
+    <div className={`relative w-full ${heightClass} bg-zinc-950 overflow-hidden group select-none flex items-center justify-center`}>
       {/* Sliding Image Animation Container */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 flex items-center justify-center">
         <AnimatePresence initial={false} custom={direction} mode="wait">
-          <motion.img
-            key={currentIndex}
-            src={images[currentIndex]}
-            custom={direction}
-            variants={slideVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{
-              x: { type: "spring", stiffness: 300, damping: 30 },
-              opacity: { duration: 0.3 }
-            }}
-            referrerPolicy="no-referrer"
-            className="w-full h-full object-cover transition-all duration-300 group-hover:scale-[1.02]"
-            alt={`Carousel screen ${currentIndex + 1}`}
-          />
+          {isMobile ? (
+            <motion.div
+              key={currentIndex}
+              custom={direction}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{
+                x: { type: "spring", stiffness: 300, damping: 30 },
+                opacity: { duration: 0.3 }
+              }}
+              className="relative h-[95%] aspect-[19.5/40] bg-black rounded-[2.5rem] p-1.5 shadow-2xl z-10 transition-all duration-300 group-hover:scale-[1.02] flex items-center justify-center border-[3px] border-[#434B5D]"
+              style={{
+                boxShadow: "inset 0 0 4px 1px rgba(255,255,255,0.2), 0 20px 40px -10px rgba(0,0,0,0.8)"
+              }}
+            >
+              {/* Hardware Buttons */}
+              <div className="absolute -left-[5px] top-[15%] w-1 h-6 bg-[#434B5D] rounded-l-md" /> {/* Mute */}
+              <div className="absolute -left-[5px] top-[22%] w-1 h-10 bg-[#434B5D] rounded-l-md" /> {/* Volume Up */}
+              <div className="absolute -left-[5px] top-[30%] w-1 h-10 bg-[#434B5D] rounded-l-md" /> {/* Volume Down */}
+              <div className="absolute -right-[5px] top-[25%] w-1 h-12 bg-[#434B5D] rounded-r-md" /> {/* Power */}
+
+              <div className="relative w-full h-full bg-zinc-900 rounded-[2.2rem] overflow-hidden border-[4px] border-black">
+                <img
+                  src={images[currentIndex]}
+                  referrerPolicy="no-referrer"
+                  className="w-full h-full object-cover"
+                  alt={`Carousel screen ${currentIndex + 1}`}
+                />
+              </div>
+            </motion.div>
+          ) : (
+            <motion.img
+              key={currentIndex}
+              src={images[currentIndex]}
+              custom={direction}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{
+                x: { type: "spring", stiffness: 300, damping: 30 },
+                opacity: { duration: 0.3 }
+              }}
+              referrerPolicy="no-referrer"
+              className="absolute w-full h-full object-cover transition-all duration-300 group-hover:scale-[1.02]"
+              alt={`Carousel screen ${currentIndex + 1}`}
+            />
+          )}
         </AnimatePresence>
       </div>
 
