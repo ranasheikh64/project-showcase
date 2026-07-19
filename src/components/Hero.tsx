@@ -38,7 +38,7 @@ export default function Hero({ onSelectProject }: HeroProps) {
             liveUrl: item.liveLink || "",
             githubUrl: item.github || "",
             images: item.images && item.images.length > 0 ? item.images : ["https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80"],
-            glowColor: idx % 3 === 0 ? "rgba(139, 92, 246, 0.5)" : idx % 3 === 1 ? "rgba(6, 182, 212, 0.5)" : "rgba(59, 130, 246, 0.5)", 
+            glowColor: idx % 3 === 0 ? "rgba(139, 92, 246, 0.5)" : idx % 3 === 1 ? "rgba(6, 182, 212, 0.5)" : "rgba(59, 130, 246, 0.5)",
           }));
           setProjectsData(mappedProjects);
         }
@@ -53,7 +53,7 @@ export default function Hero({ onSelectProject }: HeroProps) {
 
   return (
     <div className="relative bg-black text-white min-h-[90vh] flex flex-col items-center justify-center pt-28 pb-10 overflow-hidden">
-      
+
       {/* Dynamic Background Glows for each column */}
       <div className="absolute top-1/2 left-1/6 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-violet-600/15 blur-[120px] pointer-events-none" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-cyan-500/15 blur-[120px] pointer-events-none" />
@@ -64,15 +64,15 @@ export default function Hero({ onSelectProject }: HeroProps) {
 
       {/* Main Content */}
       <div className="max-w-[1250px] mx-auto w-full px-4 md:px-10 z-10 flex-1 flex flex-col justify-center">
-        
+
         {loading ? (
           <div className="flex justify-center items-center h-96">
-            <span className="text-zinc-500 text-sm font-mono animate-pulse">Loading simulators...</span>
+            <span className="text-zinc-500 text-sm font-mono animate-pulse">Loading Projects...</span>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-6 lg:gap-12 items-end">
             {projectsData.map((project, index) => (
-              <motion.div 
+              <motion.div
                 key={project.id}
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -81,7 +81,7 @@ export default function Hero({ onSelectProject }: HeroProps) {
                 onMouseEnter={() => setHoveredIndex(index)}
                 onMouseLeave={() => setHoveredIndex(null)}
               >
-                
+
                 {/* Top Icons */}
                 <div className="flex gap-3 mb-4">
                   <div className="w-10 h-10 rounded-xl bg-[#141420] border border-zinc-800/60 flex items-center justify-center text-violet-400 shadow-lg">
@@ -104,10 +104,10 @@ export default function Hero({ onSelectProject }: HeroProps) {
                 </div>
 
                 {/* iPhone Simulator Mockup */}
-                <div 
+                <div
                   className="relative w-full max-w-[280px] aspect-[19.5/40] bg-black rounded-[2.5rem] p-1.5 shadow-2xl transition-all duration-500 border-[3px] border-[#434B5D] cursor-pointer group-hover:-translate-y-2 group-hover:shadow-3xl"
                   style={{
-                    boxShadow: hoveredIndex === index 
+                    boxShadow: hoveredIndex === index
                       ? `0 30px 60px -15px ${project.glowColor}, inset 0 0 4px 1px rgba(255,255,255,0.2)`
                       : "inset 0 0 4px 1px rgba(255,255,255,0.2), 0 20px 40px -10px rgba(0,0,0,0.8)"
                   }}
@@ -137,13 +137,13 @@ export default function Hero({ onSelectProject }: HeroProps) {
                     {/* Overlay & View Details Button */}
                     <AnimatePresence>
                       {hoveredIndex === index && (
-                        <motion.div 
+                        <motion.div
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           exit={{ opacity: 0 }}
                           className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center z-30"
                         >
-                          <motion.button 
+                          <motion.button
                             initial={{ y: 10, opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
                             exit={{ y: 10, opacity: 0 }}
