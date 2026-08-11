@@ -8,6 +8,8 @@ export interface Project {
   features: string[];
   liveUrl?: string;
   githubUrl?: string;
+  googlePlayStoreLink?: string;
+  appleAppStoreLink?: string;
   demoVideo?: string;
   caseStudy?: string;
   glowColor: string;

@@ -14,10 +14,10 @@ export default function Footer() {
     <footer className="bg-black border-t border-zinc-900 py-8 px-4 md:px-10 relative">
       <div className="max-w-[1250px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-zinc-600 font-mono">
         <span>© 2026 Rana Sheikh. All rights reserved.</span>
-        
+
         <div className="flex items-center gap-5">
           <a
-            href="https://github.com/rana6424sheikh"
+            href="https://github.com/ranasheikh64"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-white transition-colors"
@@ -38,7 +38,7 @@ export default function Footer() {
           >
             <Mail className="h-4 w-4" />
           </a>
-          
+
           <button
             onClick={scrollUp}
             className="ml-2 p-1.5 rounded-lg bg-zinc-900/80 border border-zinc-800 text-zinc-400 hover:text-white transition-all cursor-pointer"
