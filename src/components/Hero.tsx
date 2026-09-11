@@ -7,15 +7,7 @@ interface HeroProps {
   onSelectProject?: (project: Project) => void;
 }
 
-const ProjectCard = ({ 
-  project, 
-  index, 
-  onSelectProject, 
-  hoveredIndex, 
-  setHoveredIndex, 
-  carouselIndex,
-  onShowAlert
-}: { 
+interface ProjectCardProps {
   project: Project;
   index: number;
   onSelectProject?: (p: Project) => void;
@@ -23,6 +15,16 @@ const ProjectCard = ({
   setHoveredIndex: (idx: number | null) => void;
   carouselIndex: number;
   onShowAlert: (msg: string) => void;
+}
+
+const ProjectCard: React.FC<ProjectCardProps> = ({ 
+  project, 
+  index, 
+  onSelectProject, 
+  hoveredIndex, 
+  setHoveredIndex, 
+  carouselIndex,
+  onShowAlert
 }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isInCenter, setIsInCenter] = useState(false);
@@ -56,9 +58,13 @@ const ProjectCard = ({
   const handleStoreClick = (e: React.MouseEvent, link?: string, storeName?: string) => {
     e.stopPropagation();
     if (link) {
-      window.open(link, "_blank");
+      let finalLink = link;
+      if (!link.startsWith('http://') && !link.startsWith('https://')) {
+        finalLink = 'https://' + link;
+      }
+      window.open(finalLink, "_blank");
     } else {
-      onShowAlert(`${storeName} link not available yet!`);
+      onShowAlert(`${storeName} app coming soon!`);
     }
   };
 
@@ -222,8 +228,8 @@ export default function Hero({ onSelectProject }: HeroProps) {
             features: ["Full-stack implementation", "Responsive Design"],
             liveUrl: item.liveLink || "",
             githubUrl: item.github || "",
-            googlePlayStoreLink: item.googlePlayStoreLink || "",
-            appleAppStoreLink: item.appleAppStoreLink || "",
+            googlePlayStoreLink: item.googlePlayStore || "",
+            appleAppStoreLink: item.appleAppStore || "",
             images: item.images && item.images.length > 0 ? item.images : ["https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80"],
             glowColor: idx % 3 === 0 ? "rgba(139, 92, 246, 0.5)" : idx % 3 === 1 ? "rgba(6, 182, 212, 0.5)" : "rgba(59, 130, 246, 0.5)",
           }));
